@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
 	private WPI_TalonSRX rightTalon = new WPI_TalonSRX(4); 
 	private WPI_VictorSPX rightVictor = new WPI_VictorSPX(1); 
 
-	private DifferentialDrive drive = null;
+	private LunatecsDrive drive = null;
 	
 	private Joystick joyStick = new Joystick(0);
 
@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
 		
 		rightVictor.follow(rightTalon);
 		
-    drive = new DifferentialDrive(leftTalon, rightTalon);
+    drive = new LunatecsDrive(leftTalon, rightTalon);
     
     
 
@@ -143,34 +143,8 @@ public class Robot extends TimedRobot {
     boolean yellow    = joyStick.getRawButton(4);
     boolean left      = joyStick.getRawButton(5);
 
-    double speed2 = speed;
-    
-    if(Math.abs(speed) >= 0.2 && Math.abs(rotation) <= .2){
-      loop++;
-      speed2 = speed * 0.005 * loop;
-      if((speed < 0 && speed2<speed) || (speed > 0 && speed2>speed) || left) {
-        speed2=speed; 
-      }
-    } else {
-      speed2=speed;
-      loop = 0.0;
-    } 
-    
-		if(Math.abs(speed) > .2 || Math.abs(rotation) > .2) {
+    drive.arcadeDrive(speed, rotation, left);
 
-
-			drive.arcadeDrive(-speed2, rotation);
-
-
-    } else {
-			drive.arcadeDrive(0.0, 0.0);
-    }
-    
-
-
-
-
-    SmartDashboard.putNumber("Speed", -speed2);
     SmartDashboard.putNumber("Loop", loop);
 
     SmartDashboard.putNumber("Potent in teleop", degrees);
