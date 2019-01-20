@@ -10,8 +10,13 @@ public class LunatecsDrive {
     private DifferentialDrive drive;
     private static final double DEADZONE = 0.2;
     private boolean reset = true;
+    private double loopCount = 0.0;
+    private static final double RAMPSPEEDUP = 0.005;
 
     public LunatecsDrive(WPI_TalonSRX left, WPI_TalonSRX right) {
+        this.left = left;
+        this.right = right;
+        this.drive = new DifferentialDrive(left, right);
         //Here lies the souls of the robotics students
     }
 
@@ -48,12 +53,40 @@ public class LunatecsDrive {
         
     }
 
-    private void goStraight(double speed) {
+    boolean startForward = true;
 
-    }
+    private void goStraight(double speed) {
+        if(startForward){ 
+					this.left.setSelectedSensorPosition(0, 0, 10);
+					this.right.setSelectedSensorPosition(0, 0, 10);
+					startForward = false;
+				
+				}
+
+				int encoderLeft = -this.left.getSelectedSensorPosition(0);
+				int encoderRight = this.right.getSelectedSensorPosition(0);
+
+				int average = (encoderLeft + encoderRight)/2;
+			
+				int diffRight = average - encoderRight;
+				int diffLeft = average - encoderLeft;
+				
+				double correcting = .0000275;
+			
+				double powerLeft = speed + (correcting * (double)diffLeft);
+				double powerRight = speed + (correcting * (double)diffRight);
+			
+				drive.tankDrive(powerLeft, powerRight);
+
+            }
 
     private double rampUp(double speed) {
-        return 1.0;
+        loopCount++;
+        double finalSpeed = speed * RAMPSPEEDUP * loopCount;
+        if((speed < 0 && finalSpeed < speed) || (speed > 0 && finalSpeed > speed)) {
+            finalSpeed=speed; 
+        }
+        return finalSpeed;
     }
 
 }
