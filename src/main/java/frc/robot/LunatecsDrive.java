@@ -13,7 +13,9 @@ public class LunatecsDrive {
     private static final double RAMPSPEEDUP = 0.005;
 
     public LunatecsDrive(WPI_TalonSRX left, WPI_TalonSRX right) {
-
+        this.left = left;
+        this.right = right;
+        this.drive = new DifferentialDrive(left, right);
     }
 
     public void arcadeDrive(double speed, double rotation, boolean rampUp) {
