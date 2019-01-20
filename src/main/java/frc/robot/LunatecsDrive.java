@@ -8,6 +8,9 @@ public class LunatecsDrive {
     private WPI_TalonSRX right;
     private WPI_TalonSRX left;  
     private DifferentialDrive drive;
+    
+    private double loopCount = 0.0;
+    private static final double RAMPSPEEDUP = 0.005;
 
     public LunatecsDrive(WPI_TalonSRX left, WPI_TalonSRX right) {
 
@@ -22,7 +25,12 @@ public class LunatecsDrive {
     }
 
     private double rampUp(double speed) {
-        return 1.0;
+        loopCount++;
+        double finalSpeed = speed * RAMPSPEEDUP * loopCount;
+        if((speed < 0 && finalSpeed < speed) || (speed > 0 && finalSpeed > speed)) {
+            finalSpeed=speed; 
+        }
+        return finalSpeed;
     }
 
 }
