@@ -44,8 +44,8 @@ public class Robot extends TimedRobot {
 
   private TalonSRX intake = new TalonSRX(5);
 
-  private static final double UPLIMIT = 780.0;
-  private static final double LOWLIMIT = 680.0;
+  private static final double UPLIMIT = 565.0;
+  private static final double LOWLIMIT = 385.0;
 
   private boolean runningIntake = false;
 
