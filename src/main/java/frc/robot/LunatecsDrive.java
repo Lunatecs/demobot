@@ -44,7 +44,6 @@ public class LunatecsDrive {
             drive.arcadeDrive(0,0);
             resetLoopCount();
             reset = true;
-            loopCount = 0;
         }
         
     }
