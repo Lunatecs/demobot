@@ -143,7 +143,7 @@ public class Robot extends TimedRobot {
     boolean yellow    = joyStick.getRawButton(4);
     boolean left      = joyStick.getRawButton(5);
 
-    drive.arcadeDrive(speed, rotation, left);
+    drive.arcadeDrive(-speed, rotation, left);
 
     SmartDashboard.putNumber("Loop", loop);
 

@@ -11,7 +11,7 @@ public class LunatecsDrive {
     private static final double DEADZONE = 0.2;
     private boolean reset = true;
     private double loopCount = 0.0;
-    private static final double RAMPSPEEDUP = 0.005;
+    private static final double RAMPSPEEDUP = 0.003;
 
     public LunatecsDrive(WPI_TalonSRX left, WPI_TalonSRX right) {
         this.left = left;
@@ -42,6 +42,7 @@ public class LunatecsDrive {
 
         } else {
             drive.arcadeDrive(0,0);
+            resetLoopCount();
             reset = true;
         }
         
@@ -56,12 +57,6 @@ public class LunatecsDrive {
     boolean startForward = true;
 
     private void goStraight(double speed) {
-        if(startForward){ 
-					this.left.setSelectedSensorPosition(0, 0, 10);
-					this.right.setSelectedSensorPosition(0, 0, 10);
-					startForward = false;
-				
-				}
 
 				int encoderLeft = -this.left.getSelectedSensorPosition(0);
 				int encoderRight = this.right.getSelectedSensorPosition(0);
@@ -79,6 +74,10 @@ public class LunatecsDrive {
 				drive.tankDrive(powerLeft, powerRight);
 
             }
+
+    private void resetLoopCount() {
+        loopCount=0;
+    }
 
     private double rampUp(double speed) {
         loopCount++;
