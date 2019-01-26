@@ -43,6 +43,7 @@ public class LunatecsDrive {
         } else {
             drive.arcadeDrive(0,0);
             reset = true;
+            loopCount = 0;
         }
         
     }
