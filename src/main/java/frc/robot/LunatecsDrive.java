@@ -76,7 +76,7 @@ public class LunatecsDrive {
             }
 
     private void resetLoopCount() {
-        loopCount=0;
+        loopCount = 0;
     }
 
     private double rampUp(double speed) {

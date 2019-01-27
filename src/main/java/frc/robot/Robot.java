@@ -13,12 +13,16 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Ultrasonic;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,6 +31,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * creating this project, you must also update the build.gradle file in the
  * project.
  */
+
+/*
+Hue Upper: 80
+Hue Lower:58
+Saturation Upper: 255
+Saturation Lower: 192
+Value Upper: 255
+Value Lower: 201
+
+*/
+
+
 public class Robot extends TimedRobot {
 
 	private WPI_TalonSRX leftTalon = new WPI_TalonSRX(3); 
@@ -35,12 +51,13 @@ public class Robot extends TimedRobot {
 	private WPI_TalonSRX rightTalon = new WPI_TalonSRX(4); 
 	private WPI_VictorSPX rightVictor = new WPI_VictorSPX(1); 
 
-	private LunatecsDrive drive = null;
-	
+  private LunatecsDrive drive = null;
+
 	private Joystick joyStick = new Joystick(0);
 
+  private Ultrasonic rangeFinder = new Ultrasonic(9, 8);
   private AnalogInput ai = new AnalogInput(3);
-  private AnalogPotentiometer potentiometer = new AnalogPotentiometer(ai,1080, 30);
+  private AnalogPotentiometer potentiometer = new AnalogPotentiometer(ai, 1080, 30);
 
   private TalonSRX intake = new TalonSRX(5);
 
@@ -55,6 +72,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    CameraServer.getInstance().startAutomaticCapture();
 
     this.m_period = .005;
 
@@ -81,6 +100,8 @@ public class Robot extends TimedRobot {
     intake.setSelectedSensorPosition(0, 0, 10);
 
     intake.setSensorPhase(true);
+
+    rangeFinder.setAutomaticMode(true);
   }
 
   /**
@@ -114,19 +135,49 @@ public class Robot extends TimedRobot {
 
   }
 
+  double tolerance = 0.5;
+  double rotationKp = 0.045;
+  double goal = 8.0;
+  double speedKp = 0.03;
+  double disTolerance = 1;
   /**
    * This function is called periodically during autonomous.
    */
   @Override
   public void autonomousPeriodic() {
 
+    double horiztonalError = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    
+    double actualDistance = rangeFinder.getRangeInches();
+    SmartDashboard.putNumber("RangeFinder", actualDistance);
+    double difference = actualDistance - goal;
+    SmartDashboard.putNumber("difference", difference);
+    double scaledSpeed = speedKp * difference; 
+    
+    if(Math.abs(difference) > goal){
+      if (Math.abs(horiztonalError) > tolerance && difference > (goal + 12)){
+        double scaledRotation = rotationKp * horiztonalError;
+
+        drive.arcadeDrive(scaledSpeed, scaledRotation, true);
+        SmartDashboard.putBoolean("Alive?", true);
+
+      } else {
+
+        drive.arcadeDrive(scaledSpeed, 0, true);
+        SmartDashboard.putBoolean("Alive?", true);
+
+      }
+
+    }else{
+      drive.arcadeDrive(0, 0, false);
+      SmartDashboard.putBoolean("Alive?", false);
+
+    }
+
   }
 
   int count = 0;
 
-  /**
-   * This function is called periodically during operator control.
-   */
   double loop = 0.0;
 
   @Override
@@ -142,6 +193,8 @@ public class Robot extends TimedRobot {
     boolean blue      = joyStick.getRawButton(3);
     boolean yellow    = joyStick.getRawButton(4);
     boolean left      = joyStick.getRawButton(5);
+
+    SmartDashboard.putNumber("Range", rangeFinder.getRangeMM());
 
     drive.arcadeDrive(-speed, rotation, left);
 
