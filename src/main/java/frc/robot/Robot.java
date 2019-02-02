@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
+import edu.wpi.first.wpilibj.Spark;
+
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -66,12 +69,22 @@ public class Robot extends TimedRobot {
 
   private boolean runningIntake = false;
 
+  private Spark ledControl = new Spark(2);
+  
+
+  /**
+   * 
+   *
+   */
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
   @Override
   public void robotInit() {
+
+    ledControl.set(.55);
 
     CameraServer.getInstance().startAutomaticCapture();
 
@@ -183,6 +196,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    
+
     double speed      = joyStick.getRawAxis(1);
 		double rotation   = joyStick.getRawAxis(4);
     double intakeUp   = joyStick.getRawAxis(2);
@@ -260,5 +275,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+  }
+
+  @Override
+  public void disabledInit(){
+
+    ledControl.set(-0.01);
+  }
+
+  @Override
+  public void disabledPeriodic(){
+
+    ledControl.set(-0.01);
   }
 }
